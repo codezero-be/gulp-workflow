@@ -1,0 +1,13 @@
+body {
+  background: #FFF;
+  color: #000;
+}
+
+@media only screen and (min-width: 960px) {
+  body {
+    background: #000;
+    color: #FFF;
+  }
+}
+
+@import "test";
