@@ -373,7 +373,7 @@ gulp.task('watch-js', function () {
 
 gulp.task('compile-icon-font', function () {
     // Fetch SVG files
-    gulp.src([iconFont.paths.src + '*.svg'], {base: '.'})
+    return gulp.src([iconFont.paths.src + '*.svg'], {base: '.'})
 
         // Create font CSS
         .pipe(iconfontcss({
