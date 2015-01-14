@@ -13,6 +13,7 @@ var gulp        = require('gulp'),
     cssmin      = require('gulp-cssmin'),
     iconfont    = require('gulp-iconfont'),
     iconfontcss = require('gulp-iconfont-css'),
+    phpspec     = require('gulp-phpspec'),
     notifier    = require('node-notifier'),     //=> For notifications not via .pipe()
     notify      = require('gulp-notify');       //=> For notifications via .pipe()
 
@@ -28,7 +29,9 @@ var basePaths = {
     assets: 'assets/',
     bower: 'bower_components/',
     compiled: 'temp/',
-    production: 'public/'
+    production: 'public/',
+    php: 'src/',
+    phpspec: 'spec/'
 };
 
 /**
@@ -416,6 +419,47 @@ gulp.task('watch-icon-font', function () {
 });
 
 // ====================================================================================
+// ~~~ PHPSPEC ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ====================================================================================
+
+/**
+ * Run PHPSpec Tests
+ */
+
+gulp.task('run-phpspec', function () {
+    // Fetch tests
+    return gulp.src(basePaths.phpspec + '**/*.php')
+
+        // Run tests
+        .pipe(phpspec('', {notify: true}))
+        .on('error', notifyPHPSpecError);
+});
+
+/**
+ * Show PHPSpec Success Notification
+ */
+
+gulp.task('phpspec-notification', function () {
+    notifySuccess('PHPSpec: All Tests Successful!');
+});
+
+/**
+ * Default PHPSpec Task:
+ */
+
+gulp.task('phpspec-once', function (cb) {
+    runSequence('run-phpspec', 'phpspec-notification', cb);
+});
+
+/**
+ * PHPSpec Watcher
+ */
+
+gulp.task('phpspec', ['phpspec-once'], function () {
+    gulp.watch([basePaths.phpspec + '**/*.php', basePaths.php + '**/*.php'], ['phpspec-once']);
+});
+
+// ====================================================================================
 // ~~~ DEFAULT TASK ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ====================================================================================
 
@@ -488,6 +532,21 @@ function notifyJSError(err) {
         title: 'Ooops...',
         message: 'Error compiling JS!',
         sound: 'Sosumi'
+    })(err);
+
+    this.emit('end');
+}
+
+function notifyPHPSpecError(err) {
+    hasErrors = true;
+
+    console.log(err.toString());
+
+    notify.onError({
+        title: 'Ooops...',
+        message: 'One or more PHPSpec tests failed!',
+        sound: 'Sosumi'
+        //icon: __dirname + '/fail.png'
     })(err);
 
     this.emit('end');
