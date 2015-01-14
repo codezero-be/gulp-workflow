@@ -8,9 +8,11 @@ var gulp        = require('gulp'),
     browserify  = require('gulp-browserify'),   //=> Compile JavaScript files with their dependencies
     uglify      = require('gulp-uglify'),
     sass        = require('gulp-sass'),
-    combineMq   = require('gulp-combine-media-queries')
+    combineMq   = require('gulp-combine-media-queries'),
     prefix      = require('gulp-autoprefixer'),
     cssmin      = require('gulp-cssmin'),
+    iconfont    = require('gulp-iconfont'),
+    iconfontcss = require('gulp-iconfont-css'),
     notifier    = require('node-notifier'),     //=> For notifications not via .pipe()
     notify      = require('gulp-notify');       //=> For notifications via .pipe()
 
@@ -87,6 +89,23 @@ var concatFiles = {
         paths.scripts.compiled + destFiles.scripts.compiled //=> Browserify Output
     ]
 };
+
+/**
+ * Icon Font Settings
+ */
+
+var iconFont = {
+    name : 'icon-font',
+    paths : {
+        src: basePaths.assets + 'icon-font/',
+        dest: basePaths.production + 'fonts/',
+        css2font: '../fonts/' //=> Reference to the font in the CSS file
+    },
+    css : {
+        src: basePaths.assets + 'icon-font-template.scss',
+        dest: paths.styles.src + '_icon-font.scss'
+    }
+}
 
 /**
  * Compile Mode
@@ -345,16 +364,84 @@ gulp.task('watch-js', function () {
 });
 
 // ====================================================================================
+// ~~~ ICON FONT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ====================================================================================
+
+/**
+ * Compile Icon Font
+ */
+
+gulp.task('compile-icon-font', function () {
+    // Fetch SVG files
+    gulp.src([iconFont.paths.src + '*.svg'], {base: '.'})
+
+        // Create font CSS
+        .pipe(iconfontcss({
+            fontName: iconFont.name,
+            path: iconFont.css.src,
+            targetPath: getRoot(iconFont.paths.dest) + iconFont.css.dest,
+            fontPath: iconFont.paths.css2font
+        }))
+
+        // Create font
+        .pipe(iconfont({fontName: iconFont.name, normalize: true}))
+
+        // Save font files
+        .pipe(gulp.dest(iconFont.paths.dest));
+});
+
+/**
+ * Show Icon Font Success Notification
+ */
+
+gulp.task('icon-font-notification', function () {
+    notifySuccess('Icon Font Compiled Successfully!');
+});
+
+/**
+ * Default Icon Font Task:
+ * - Compile
+ */
+
+gulp.task('icon-font', function (cb) {
+    runSequence('compile-icon-font', 'icon-font-notification', cb);
+});
+
+/**
+ * Icon Font Watcher
+ */
+
+gulp.task('watch-icon-font', function () {
+    gulp.watch(iconFont.paths.src + '*.svg', ['icon-font']);
+});
+
+// ====================================================================================
 // ~~~ DEFAULT TASK ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ====================================================================================
 
 gulp.task('default', function (cb) {
-    runSequence('css', 'js', ['watch-css', 'watch-js'], cb);
+    runSequence('icon-font', 'css', 'js', ['watch-icon-font', 'watch-css', 'watch-js'], cb);
 });
 
 // ====================================================================================
 // ~~~ HELPER METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ====================================================================================
+
+/**
+ * Get Project Root
+ */
+
+function getRoot(path)
+{
+    var backPath = '',
+        depth = (path.match(/\//g) || []).length;
+
+    for (var i = 0; i < depth; i++) {
+        backPath += '../';
+    }
+
+    return backPath;
+}
 
 /* *
  * Clean Up Files
