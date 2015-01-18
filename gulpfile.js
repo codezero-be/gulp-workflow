@@ -108,7 +108,7 @@ var iconFont = {
         src: basePaths.assets + 'icon-font-template.scss',
         dest: paths.styles.src + '_icon-font.scss'
     }
-}
+};
 
 /**
  * Compile Mode
@@ -125,8 +125,8 @@ var isProduction = true,
 if (gutil.env.dev === true) {
     isProduction = false;
     sassStyle = 'expanded';
-    sourceMap = true,
-    combineMediaQueries = false,
+    sourceMap = true;
+    combineMediaQueries = false;
     cleanUpFiles = false;
 }
 
