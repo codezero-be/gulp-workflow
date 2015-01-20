@@ -1,7 +1,7 @@
 /bower_components
 /node_modules
 /vendor
-/temp
+/compiled
 .idea
 .sass-cache
 .DS_Store

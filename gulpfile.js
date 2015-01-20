@@ -21,117 +21,97 @@ var gulp        = require('gulp'),
 // ~~~ CONFIGURATION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ====================================================================================
 
-/**
- * Base Paths
- */
-
-var basePaths = {
-    assets: 'assets/',
-    bower: 'bower_components/',
-    compiled: 'temp/',
-    production: 'public/',
-    php: 'src/',
-    phpspec: 'spec/'
-};
+var dev = !! gutil.env.dev;
+var production = ! dev;
+var config = {};
 
 /**
- * Source and Destination Folders
+ * CSS Configuration
  */
 
-var paths = {
-    scripts: {
-        src: basePaths.assets + 'js/',
-        compiled: basePaths.compiled + '',
-        production: basePaths.production + 'js/'
+config.css = {
+    sourceMaps: dev,
+    combineMediaQueries: production,
+    autoPrefix: {
+        enabled: true,
+        browsers: ['last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4']
     },
-    styles: {
-        src: basePaths.assets + 'sass/',
-        compiled: basePaths.compiled + '',
-        production: basePaths.production + 'css/'
+    minify: production,
+
+    // SASS Settings
+    sass: {
+        defaultTask: true, //=> Include this task in the default Gulp task?
+        src: 'assets/sass/',
+        dest: 'compiled/',
+        clearCompiled: production //=> This will delete all *.css files from the dest folder when all tasks are done!
+    },
+
+    // Concatenation Settings
+    concat: {
+        defaultTask: true,
+        files: [
+            'bower_components/normalize.css/normalize.css',
+            'compiled/main.css' //=> SASS output
+        ],
+        outputFilename: 'styles.css',
+        dest: 'public/css/'
     }
 };
 
 /**
- * Source Files to Compile
- * Styles: SASS / Scripts: Browserify
+ * JS Configuration
  */
 
-var srcFiles = {
-    styles: paths.styles.src + '**/*.scss',
-    scripts: [paths.scripts.src + 'main.js']
-};
+config.js = {
+    sourceMaps: dev,
+    uglify: production,
 
-/**
- * Output Files (compiled, concatenated and minified)
- * These will be placed in the "compiled" or "production" folder...
- */
-
-var destFiles = {
-    styles: {
-        compiled: 'main.css', //=> This one must match: main.scss => main.css
-        production: 'styles.css'
+    // Browserify Settings
+    browserify: {
+        defaultTask: true,
+        src: 'assets/js/',
+        mainFilename: 'main.js',
+        dest: 'compiled/',
+        clearCompiled: production //=> This will delete all *.js files from the dest folder when all tasks are done!
     },
-    scripts: {
-        compiled: 'main.js',
-        production: 'scripts.js'
+
+    // Concatenation Settings
+    concat: {
+        defaultTask: true,
+        files: [
+            'bower_components/jquery/dist/jquery.min.js',
+            'compiled/main.js' //=> Browserify output
+        ],
+        outputFilename: 'scripts.js',
+        dest: 'public/js/'
     }
 };
 
 /**
- * Files to Concatenate
+ * Icon Font Configuration
  */
 
-var concatFiles = {
-    styles: [
-        basePaths.bower + 'normalize.css/normalize.css',
-        paths.styles.compiled + destFiles.styles.compiled //=> SASS Output
-    ],
-    scripts: [
-        basePaths.bower + 'modernizr/modernizr.js',
-        basePaths.bower + 'jquery/dist/jquery.js',
-        paths.scripts.compiled + destFiles.scripts.compiled //=> Browserify Output
-    ]
-};
-
-/**
- * Icon Font Settings
- */
-
-var iconFont = {
+config.iconFont = {
     name : 'icon-font',
-    paths : {
-        src: basePaths.assets + 'icon-font/',
-        dest: basePaths.production + 'fonts/',
-        css2font: '../fonts/' //=> Reference to the font in the CSS file
-    },
+    src: 'assets/icon-font/',
+    dest: 'public/fonts/',
     css : {
-        src: basePaths.assets + 'icon-font-template.scss',
-        dest: paths.styles.src + '_icon-font.scss'
+        template: 'assets/icon-font-template.scss',
+        dest: config.css.sass.src + '_icon-font.scss',
+        fontPath: '../fonts/' //=> Relative path from the CSS file to the font
     }
 };
 
 /**
- * Compile Mode
+ * PHPSpec Configuration
  */
 
-// Run gulp with these default settings:
-var isProduction = true,
-    sassStyle = 'compressed',
-    sourceMap = false,
-    combineMediaQueries = true,
-    cleanUpFiles = true;
-
-// Run gulp --dev to use these alternate settings:
-if (gutil.env.dev === true) {
-    isProduction = false;
-    sassStyle = 'expanded';
-    sourceMap = true;
-    combineMediaQueries = false;
-    cleanUpFiles = false;
-}
-
-// Browser compatibility for CSS
-var cssBrowsers = ['last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'];
+// Make sure you also set the correct
+// mappings in phpspec.yml
+config.phpspec = {
+    spec: 'spec/',
+    php: 'src/'
+};
 
 // ====================================================================================
 // ~~~ CSS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -148,32 +128,35 @@ var cssBrowsers = ['last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', '
 
 gulp.task('compile-sass', function () {
     // Fetch SASS files
-    return gulp.src(srcFiles.styles)
+    return gulp.src(config.css.sass.src + '**/*.scss')
 
         // Start SASS source map
-        .pipe(sourceMap ? sourcemaps.init() : gutil.noop())
+        .pipe(config.css.sourceMaps ? sourcemaps.init() : gutil.noop())
 
         // Compile SASS
-        .pipe(sass({outputStyle: sassStyle}))
+        .pipe(sass())
         .on('error', notifySASSError)
 
         // Save SASS source map
-        .pipe(sourceMap ? sourcemaps.write() : gutil.noop())
+        .pipe(config.css.sourceMaps ? sourcemaps.write() : gutil.noop())
 
         // Start new source map and load SASS source map
-        .pipe(sourceMap ? sourcemaps.init({loadMaps: true}) : gutil.noop())
+        .pipe(config.css.sourceMaps ? sourcemaps.init({loadMaps: true}) : gutil.noop())
 
         // Combine media queries (source maps won't work well with this)
-        .pipe(combineMediaQueries ? combineMq() : gutil.noop())
+        .pipe(config.css.combineMediaQueries ? combineMq() : gutil.noop())
 
         // Add browser prefixes
-        .pipe(prefix(cssBrowsers))
+        .pipe(config.css.autoPrefix.enabled ? prefix(config.css.autoPrefix.browsers) : gutil.noop())
+
+        // Minify CSS (production)
+        .pipe(config.css.minify ? cssmin({keepSpecialComments: 0}) : gutil.noop())
 
         // Save source map
-        .pipe(sourceMap ? sourcemaps.write() : gutil.noop())
+        .pipe(config.css.sourceMaps ? sourcemaps.write() : gutil.noop())
 
         // Save compiled CSS file
-        .pipe(gulp.dest(paths.styles.compiled));
+        .pipe(gulp.dest(config.css.sass.dest));
 });
 
 /**
@@ -189,7 +172,7 @@ gulp.task('sass', function (cb) {
  */
 
 gulp.task('watch-sass', function () {
-    gulp.watch(srcFiles.styles, ['sass']);
+    gulp.watch(config.css.sass.src + '**/*.scss', ['sass']);
 });
 
 /**
@@ -203,28 +186,28 @@ gulp.task('watch-sass', function () {
 
 gulp.task('concat-css', function () {
     // Fetch CSS files
-    return gulp.src(concatFiles.styles)
+    return gulp.src(config.css.concat.files)
 
         // Start source map
-        .pipe(sourceMap ? sourcemaps.init({loadMaps: true}) : gutil.noop())
+        .pipe(config.css.sourceMaps ? sourcemaps.init({loadMaps: true}) : gutil.noop())
 
         // Concatenate files
-        .pipe(concat(destFiles.styles.production))
+        .pipe(concat(config.css.concat.outputFilename))
 
         // Combine media queries (source maps won't work well with this)
-        .pipe(combineMediaQueries ? combineMq() : gutil.noop())
+        .pipe(config.css.combineMediaQueries ? combineMq() : gutil.noop())
 
         // Add browser prefixes
-        .pipe(prefix(cssBrowsers))
+        .pipe(config.css.autoPrefix.enabled ? prefix(config.css.autoPrefix.browsers) : gutil.noop())
 
         // Minify CSS (production)
-        .pipe(isProduction ? cssmin({keepSpecialComments: 0}) : gutil.noop())
+        .pipe(config.css.minify ? cssmin({keepSpecialComments: 0}) : gutil.noop())
 
         // Save source map
-        .pipe(sourceMap ? sourcemaps.write() : gutil.noop())
+        .pipe(config.css.sourceMaps ? sourcemaps.write() : gutil.noop())
 
         // Save output to destination folder
-        .pipe(gulp.dest(paths.styles.production));
+        .pipe(gulp.dest(config.css.concat.dest));
 });
 
 /**
@@ -232,7 +215,11 @@ gulp.task('concat-css', function () {
  */
 
 gulp.task('cleanup-css', function (cb) {
-    cleanUp([paths.styles.compiled + destFiles.styles.compiled], cb);
+    var pattern = config.css.sass.clearCompiled
+        ? config.css.sass.dest + '*.css'
+        : 'nothing.toDelete';
+
+    del([pattern], cb);
 });
 
 /**
@@ -252,7 +239,7 @@ gulp.task('css', function (cb) {
  */
 
 gulp.task('watch-css', function () {
-    gulp.watch(srcFiles.styles, ['css']);
+    gulp.watch(config.css.sass.src + '**/*.scss', ['css']);
 });
 
 /**
@@ -270,21 +257,29 @@ gulp.task('css-notification', function () {
 /**
  * Browserify JS:
  * - Compile the main JS file with it's dependencies/modules
+ * - Use source maps (dev)
+ * - Uglify JS (production)
  */
 
 gulp.task('browserify-js', function () {
     // Fetch JS files
-    return gulp.src(srcFiles.scripts)
+    return gulp.src(config.js.browserify.src + config.js.browserify.mainFilename)
 
         // Compile main JS file with dependencies/modules
-        .pipe(browserify({debug: sourceMap}))
+        .pipe(browserify({debug: config.js.sourceMaps}))
         .on('error', notifyJSError)
 
-        // Rename output JS file
-        .pipe(rename(destFiles.scripts.compiled))
+        // Start source map
+        .pipe(config.js.sourceMaps ? sourcemaps.init({loadMaps: true}) : gutil.noop())
+
+        // Uglify JS (production)
+        .pipe(config.js.uglify ? uglify() : gutil.noop())
+
+        // Save source map
+        .pipe(config.js.sourceMaps ? sourcemaps.write() : gutil.noop())
 
         // Save output to destination folder
-        .pipe(gulp.dest(paths.scripts.compiled));
+        .pipe(gulp.dest(config.js.browserify.dest));
 });
 
 /**
@@ -300,7 +295,7 @@ gulp.task('browserify', function (cb) {
  */
 
 gulp.task('watch-browserify', function () {
-    gulp.watch(paths.scripts.src + '**/*.js', ['browserify']);
+    gulp.watch(config.js.browserify.src + '**/*.js', ['browserify']);
 });
 
 /**
@@ -312,22 +307,22 @@ gulp.task('watch-browserify', function () {
 
 gulp.task('concat-js', function () {
     // Fetch CSS files
-    return gulp.src(concatFiles.scripts)
+    return gulp.src(config.js.concat.files)
 
         // Start source map
-        .pipe(sourceMap ? sourcemaps.init({loadMaps: true}) : gutil.noop())
+        .pipe(config.js.sourceMaps ? sourcemaps.init({loadMaps: true}) : gutil.noop())
 
         // Concatenate files
-        .pipe(concat(destFiles.scripts.production))
+        .pipe(concat(config.js.concat.outputFilename))
 
         // Uglify JS (production)
-        .pipe(isProduction ? uglify() : gutil.noop())
+        .pipe(config.js.uglify ? uglify() : gutil.noop())
 
         // Save source map
-        .pipe(sourceMap ? sourcemaps.write() : gutil.noop())
+        .pipe(config.js.sourceMaps ? sourcemaps.write() : gutil.noop())
 
         // Save output to destination folder
-        .pipe(gulp.dest(paths.scripts.production));
+        .pipe(gulp.dest(config.js.concat.dest));
 });
 
 /**
@@ -335,7 +330,11 @@ gulp.task('concat-js', function () {
  */
 
 gulp.task('cleanup-js', function (cb) {
-    cleanUp([paths.scripts.compiled + destFiles.scripts.compiled], cb);
+    var pattern = config.js.browserify.clearCompiled
+        ? config.js.browserify.dest + '*.js'
+        : 'nothing.toDelete';
+
+    del([pattern], cb);
 });
 
 /**
@@ -363,7 +362,7 @@ gulp.task('js', function (cb) {
  */
 
 gulp.task('watch-js', function () {
-    gulp.watch(paths.scripts.src + '**/*.js', ['js']);
+    gulp.watch(config.js.browserify.src + '**/*.js', ['js']);
 });
 
 // ====================================================================================
@@ -376,21 +375,21 @@ gulp.task('watch-js', function () {
 
 gulp.task('compile-icon-font', function () {
     // Fetch SVG files
-    return gulp.src([iconFont.paths.src + '*.svg'], {base: '.'})
+    return gulp.src([config.iconFont.src + '*.svg'], {base: '.'})
 
         // Create font CSS
         .pipe(iconfontcss({
-            fontName: iconFont.name,
-            path: iconFont.css.src,
-            targetPath: getRoot(iconFont.paths.dest) + iconFont.css.dest,
-            fontPath: iconFont.paths.css2font
+            fontName: config.iconFont.name,
+            path: config.iconFont.css.template,
+            targetPath: getRoot(config.iconFont.dest) + config.iconFont.css.dest,
+            fontPath: config.iconFont.css.fontPath
         }))
 
         // Create font
-        .pipe(iconfont({fontName: iconFont.name, normalize: true}))
+        .pipe(iconfont({fontName: config.iconFont.name, normalize: true}))
 
         // Save font files
-        .pipe(gulp.dest(iconFont.paths.dest));
+        .pipe(gulp.dest(config.iconFont.dest));
 });
 
 /**
@@ -415,7 +414,7 @@ gulp.task('icon-font', function (cb) {
  */
 
 gulp.task('watch-icon-font', function () {
-    gulp.watch(iconFont.paths.src + '*.svg', ['icon-font']);
+    gulp.watch(config.iconFont.src + '*.svg', ['icon-font']);
 });
 
 // ====================================================================================
@@ -428,7 +427,7 @@ gulp.task('watch-icon-font', function () {
 
 gulp.task('run-phpspec', function () {
     // Fetch tests
-    return gulp.src(basePaths.phpspec + '**/*.php')
+    return gulp.src(config.phpspec.spec + '**/*.php')
 
         // Run tests
         .pipe(phpspec('', {notify: true}))
@@ -456,7 +455,7 @@ gulp.task('phpspec-once', function (cb) {
  */
 
 gulp.task('phpspec', ['phpspec-once'], function () {
-    gulp.watch([basePaths.phpspec + '**/*.php', basePaths.php + '**/*.php'], ['phpspec-once']);
+    gulp.watch([config.phpspec.spec + '**/*.php', config.phpspec.php + '**/*.php'], ['phpspec-once']);
 });
 
 // ====================================================================================
@@ -485,20 +484,6 @@ function getRoot(path)
     }
 
     return backPath;
-}
-
-/* *
- * Clean Up Files
- */
-
-function cleanUp(pattern, cb) {
-    if (cleanUpFiles == false) {
-        // Prevent task from hanging
-        // and run del command anyway!
-        pattern = ['nothing.toDelete'];
-    }
-
-    del(pattern, cb);
 }
 
 /**

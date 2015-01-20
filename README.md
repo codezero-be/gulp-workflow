@@ -43,7 +43,7 @@ Install the third party packages that are used in this sample project (Modernizr
 
     bower install
 
-> If you don't want to use Bower, make sure you edit the `concatFiles` array in `gulpfile.js`.
+> If you don't want to use Bower, make sure you edit the CSS/JS concatenation files array in `gulpfile.js`.
 
 ## Install PHPSpec (optional) ##
 
@@ -64,7 +64,7 @@ This is the default project structure, but all folders can be changed in `gulpfi
 - `assets/sass/_icon-font.scss` : Generated SASS file for the webfont 
 - `assets/sass/` : SASS source files  
 - `assets/js/` : JavaScript source files
-- `temp/` : Compiled SASS and JavaScript files (not yet concatenated)
+- `compiled/` : Compiled SASS and JavaScript files (not yet concatenated)
 - `public/fonts/` : Webfont generated from SVG icons
 - `public/css/` : CSS production file (compiled, concatenated, ...)
 - `public/js/` : JavaScript production file (compiled, concatenated, ...)
@@ -130,22 +130,3 @@ You can use `--dev` to prevent minification, save source maps and keep compiled 
 - `gulp cleanup-css` : Remove compiled CSS file and only keep the one used for production
 - `gulp cleanup-js` : Remove compiled JS file and only keep the one used for production
 
----
-
-# Changelog #
-
-#### v1.2.0 - 14/01/2015 ####
-
-- PHPSpec support
-
-#### v1.1.1 - 14/01/2015 ####
-
-- Fix issue where SASS starts compiling before `_icon-font.scss` was saved
-
-#### v1.1.0 - 14/01/2015 ####
-
-- Add icon font support
-
-#### v1.0.0 - 13/01/2015 ####
-
-- SASS and JS support
