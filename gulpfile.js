@@ -3,7 +3,6 @@ var gulp        = require('gulp'),
     runSequence = require('gulp-sequence'),     //=> Run tasks synchronously
     del         = require('del'),               //=> Remove files with patterns
     concat      = require('gulp-concat'),
-    rename      = require('gulp-rename'),
     sourcemaps  = require('gulp-sourcemaps'),
     browserify  = require('gulp-browserify'),   //=> Compile JavaScript files with their dependencies
     uglify      = require('gulp-uglify'),
