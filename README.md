@@ -2,6 +2,7 @@
 
 This is a sample project that uses [Gulp](http://gulpjs.com/) to:
 
+- Optimize images
 - Create your own webfont from SVG icons
 - Compile SASS and JavaScript ([Browserify](http://browserify.org/))
 - Concatenate files
@@ -60,11 +61,13 @@ This is the default project structure, but all folders can be changed in `gulpfi
 - `bower.json` : Frontend dependencies (jQuery, etc.)
 - `composer.json` : PHP dependencies (PHPSpec, etc.)
 - `phpspec.yml` : PHPSpec configuration file
+- `assets/images/` : Original images, to be optimized 
 - `assets/icon-font/` : SVG icons that will be compiled into a webfont
 - `assets/sass/_icon-font.scss` : Generated SASS file for the webfont 
 - `assets/sass/` : SASS source files  
 - `assets/js/` : JavaScript source files
 - `compiled/` : Compiled SASS and JavaScript files (not yet concatenated)
+- `public/images` : Optimized images
 - `public/fonts/` : Webfont generated from SVG icons
 - `public/css/` : CSS production file (compiled, concatenated, ...)
 - `public/js/` : JavaScript production file (compiled, concatenated, ...)
@@ -77,6 +80,7 @@ This is the default project structure, but all folders can be changed in `gulpfi
 
 ## Run `gulp` to: ##
 
+- Optimize images
 - Compile SVG icons into a webfont and create a SASS file
 - Compile SASS and JS ([Browserify](http://browserify.org/))
 - Concatenate with vendor CSS and JS files
@@ -103,18 +107,20 @@ You can use `--dev` to prevent minification, save source maps and keep compiled 
 
 ### Run tasks, but don't watch for changes: ###
 
+- `gulp images` : Optimize images
+- `gulp icon-font` : Compile SVG icons into a webfont and create the SASS file
 - `gulp css` : Run all CSS tasks
 - `gulp js` : Run all JS tasks
 
 ### Watch for changes and then run all tasks: ###
 
+- `gulp watch-images` : Watch image assets and optimize them
+- `gulp watch-icon-font` : Watch SVG icons, compile them into a webfont
 - `gulp watch-css` : Watch SASS files for changes and run all CSS tasks
 - `gulp watch-js` : Watch JS files for changes and run all JS tasks
 
 ### Compile only (don't concatenate other files): ###
 
-- `gulp icon-font` : Compile SVG icons into a webfont and create the SASS file
-- `gulp watch-icon-font` : Watch SVG icons, compile them into a webfont
 - `gulp sass` : Compile SASS, combine media queries, add prefixes, minify
 - `gulp watch-sass` : Watch SASS files for changes and compile SASS, combine media queries, add prefixes, minify
 - `gulp browserify` : Compile JS, uglify

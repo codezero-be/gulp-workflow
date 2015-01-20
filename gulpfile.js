@@ -13,6 +13,8 @@ var gulp        = require('gulp'),
     iconfont    = require('gulp-iconfont'),
     iconfontcss = require('gulp-iconfont-css'),
     phpspec     = require('gulp-phpspec'),
+    imagemin    = require('gulp-imagemin'),
+    newer       = require('gulp-newer'),
     notifier    = require('node-notifier'),     //=> For notifications not via .pipe()
     notify      = require('gulp-notify');       //=> For notifications via .pipe()
 
@@ -91,6 +93,7 @@ config.js = {
  */
 
 config.iconFont = {
+    defaultTask: true,
     name : 'icon-font',
     src: 'assets/icon-font/',
     dest: 'public/fonts/',
@@ -100,6 +103,16 @@ config.iconFont = {
         fontPath: '../fonts/' //=> Relative path from the CSS file to the font
     }
 };
+
+/**
+ * Image Optimalization Configuration
+ */
+
+config.images = {
+    defaultTask: true,
+    src: 'assets/images/',
+    dest: 'public/images/'
+}
 
 /**
  * PHPSpec Configuration
@@ -417,6 +430,55 @@ gulp.task('watch-icon-font', function () {
 });
 
 // ====================================================================================
+// ~~~ IMAGE OPTIMIZATION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ====================================================================================
+
+/**
+ * Optimize Images
+ */
+
+gulp.task('optimize-images', function () {
+    // Fetch original images
+    return gulp.src(config.images.src + '**')
+
+        // Only process the ones that changed
+        .pipe(newer(config.images.dest))
+
+        // Optimize images
+        .pipe(imagemin({
+            progressive: true,
+            svgoPlugins: [{removeViewBox: false}]
+        }))
+
+        // Save optimized images
+        .pipe(gulp.dest(config.images.dest));
+});
+
+/**
+ * Show Image Optimization Success Notification
+ */
+
+gulp.task('images-notification', function () {
+    notifySuccess('All images are optimized!');
+});
+
+/**
+ * Default Image Optimization Task:
+ */
+
+gulp.task('images', function (cb) {
+    runSequence('optimize-images', 'images-notification', cb);
+});
+
+/**
+ * Image Optimization Watcher
+ */
+
+gulp.task('watch-images', ['images'], function () {
+    gulp.watch([config.images.src + '**'], ['images']);
+});
+
+// ====================================================================================
 // ~~~ PHPSPEC ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ====================================================================================
 
@@ -462,7 +524,7 @@ gulp.task('phpspec', ['phpspec-once'], function () {
 // ====================================================================================
 
 gulp.task('default', function (cb) {
-    runSequence('icon-font', 'css', 'js', ['watch-icon-font', 'watch-css', 'watch-js'], cb);
+    runSequence('images', 'icon-font', 'css', 'js', ['watch-images', 'watch-icon-font', 'watch-css', 'watch-js'], cb);
 });
 
 // ====================================================================================
