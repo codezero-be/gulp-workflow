@@ -15,6 +15,7 @@ var gulp        = require('gulp'),
     phpspec     = require('gulp-phpspec'),
     imagemin    = require('gulp-imagemin'),
     newer       = require('gulp-newer'),
+    browserSync = require('browser-sync'),
     notifier    = require('node-notifier'),     //=> For notifications not via .pipe()
     notify      = require('gulp-notify');       //=> For notifications via .pipe()
 
@@ -112,7 +113,7 @@ config.images = {
     defaultTask: true,
     src: 'assets/images/',
     dest: 'public/images/'
-}
+};
 
 /**
  * PHPSpec Configuration
@@ -124,6 +125,51 @@ config.phpspec = {
     spec: 'spec/',
     php: 'src/'
 };
+
+/**
+ * Browser Sync Configuration
+ */
+
+config.sync = {
+    defaultTask: true,
+    root: 'public/',
+    proxy: null, //=> Don't start a server but use an existing host (ex.: "app.dev")
+    open: "external" //=> Open browser automatically (false|"local"|"external")
+};
+
+// ====================================================================================
+// ~~~ BROWSER SYNC ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ====================================================================================
+
+/**
+ * Sync Browsers
+ */
+
+var bsOptions = {
+    // Watch these files for changes
+    files: [
+        config.sync.root + "**/*.css",
+        config.sync.root + "**/*.html",
+        config.sync.root + "**/*.php",
+        config.sync.root + "**/*.js"
+    ],
+    // Don't show any notifications in the browser
+    notify: false,
+    // Open browser automatically
+    open: config.sync.open
+};
+
+if (config.sync.proxy) {
+    bsOptions.proxy = config.sync.proxy
+} else {
+    bsOptions.server = {
+        baseDir: config.sync.root
+    }
+}
+
+gulp.task('browser-sync', function () {
+    browserSync(bsOptions);
+});
 
 // ====================================================================================
 // ~~~ CSS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -524,7 +570,7 @@ gulp.task('phpspec', ['phpspec-once'], function () {
 // ====================================================================================
 
 gulp.task('default', function (cb) {
-    runSequence('images', 'icon-font', 'css', 'js', ['watch-images', 'watch-icon-font', 'watch-css', 'watch-js'], cb);
+    runSequence('images', 'icon-font', 'css', 'js', ['browser-sync', 'watch-images', 'watch-icon-font', 'watch-css', 'watch-js'], cb);
 });
 
 // ====================================================================================
@@ -535,8 +581,7 @@ gulp.task('default', function (cb) {
  * Get Project Root
  */
 
-function getRoot(path)
-{
+function getRoot(path) {
     var backPath = '',
         depth = (path.match(/\//g) || []).length;
 

@@ -8,6 +8,7 @@ This is a sample project that uses [Gulp](http://gulpjs.com/) to:
 - Concatenate files
 - Add CSS browser prefixes
 - Minify CSS / Uglify JS
+- Sync changes to CSS/JS/HTML/PHP between browsers/devices ([BrowserSync](http://www.browsersync.io/docs/gulp/))
 - [Read more...](#using-this-gulpfile)
 
 You can also keep watch on your [PHPSpec](http://www.phpspec.net/) tests. These have their own [separate tasks](#using-this-gulpfile).
@@ -24,11 +25,15 @@ If you want to run [PHPSpec](http://www.phpspec.net/), then you will also need t
 - [PHP](http://php.net/) (Windows users: unzip and update your PATH)
 - [Composer](https://getcomposer.org/)
 
-## Install Gulp & Dependencies ##
+## Install Gulp, BrowserSync & Dependencies ##
 
 First, install [Gulp](http://gulpjs.com/) globally on your machine: (only once)
 
     npm install -g gulp
+
+If you want to use [BrowserSync](http://www.browsersync.io/docs/gulp/), install it globally aswell:
+
+    npm install -g browser-sync
 
 Next, install Gulp and our dependencies in this project:
 
@@ -78,6 +83,8 @@ This is the default project structure, but all folders can be changed in `gulpfi
 
 # Using This Gulpfile #
 
+> **TIP:** if you don't want all the "Starting" and "Finished" task logging in the console window, then use the `--silent` option when you run `gulp`.
+
 ## Run `gulp` to: ##
 
 - Optimize images
@@ -89,6 +96,7 @@ This is the default project structure, but all folders can be changed in `gulpfi
 - Minify CSS / Uglify JS
 - Remove compiled CSS and JS files and only keep the one used for production
 - Start watching SVG files, SASS and JS for changes
+- Sync changes to CSS/JS/HTML/PHP between browsers/devices ([BrowserSync](http://www.browsersync.io/docs/gulp/))
 
 ## Run `gulp --dev` to do the above, but: ##
 
@@ -103,7 +111,7 @@ This is the default project structure, but all folders can be changed in `gulpfi
 
 ## Additional (more specific) tasks: ##
 
-You can use `--dev` to prevent minification, save source maps and keep compiled files. This behavior is configurable in `gulpfile.js`.
+- `gulp browser-sync` : Sync changes to CSS/JS/HTML/PHP between browsers/devices ([BrowserSync](http://www.browsersync.io/docs/gulp/))
 
 ### Run tasks, but don't watch for changes: ###
 
@@ -136,3 +144,4 @@ You can use `--dev` to prevent minification, save source maps and keep compiled 
 - `gulp cleanup-css` : Remove compiled CSS file and only keep the one used for production
 - `gulp cleanup-js` : Remove compiled JS file and only keep the one used for production
 
+> **TIP:** You can use `--dev` to prevent minification, save source maps and keep compiled files. This behavior is configurable in `gulpfile.js`.
