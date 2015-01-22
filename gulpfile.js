@@ -169,6 +169,7 @@ if (config.sync.proxy) {
 }
 
 gulp.task('browser-sync', function () {
+    gutil.log(gutil.colors.green('Starting BrowserSync...'));
     browserSync(bsOptions);
 });
 
@@ -506,7 +507,7 @@ gulp.task('optimize-images', function () {
  */
 
 gulp.task('images-notification', function () {
-    notifySuccess('All images are optimized!');
+    notifySuccess('All Images Optimized!');
 });
 
 /**
@@ -521,7 +522,7 @@ gulp.task('images', function (cb) {
  * Image Optimization Watcher
  */
 
-gulp.task('watch-images', ['images'], function () {
+gulp.task('watch-images', function () {
     gulp.watch([config.images.src + '**'], ['images']);
 });
 
@@ -586,67 +587,89 @@ function getRoot(path) {
 }
 
 /**
- * Error Handlers
+ * Suppress Plugin Console Output
+ */
+
+var glog = gutil.log;
+
+gutil.log = function () {
+    var args = Array.prototype.slice.call(arguments);
+
+    if (args.length) {
+        if (/^.*gulp-imagemin|gulp-svgicons2svgfont.*$/.test(args[0])){
+            return;
+        }
+    }
+
+    return glog.apply(console, args);
+};
+
+/**
+ * Error Notification
  */
 
 // Keep track of errors for
 // success notification...
 var hasErrors = false;
 
-function notifySASSError(err) {
+function notifyError(title, message, error) {
     hasErrors = true;
 
-    console.log(err.toString());
-
     notify.onError({
-        title: 'Ooops...',
-        message: 'Error compiling SASS!',
-        sound: 'Sosumi'
-    })(err);
-
-    this.emit('end');
-}
-
-function notifyJSError(err) {
-    hasErrors = true;
-
-    console.log(err.toString());
-
-    notify.onError({
-        title: 'Ooops...',
-        message: 'Error compiling JS!',
-        sound: 'Sosumi'
-    })(err);
-
-    this.emit('end');
-}
-
-function notifyPHPSpecError(err) {
-    hasErrors = true;
-
-    console.log(err.toString());
-
-    notify.onError({
-        title: 'Ooops...',
-        message: 'One or more PHPSpec tests failed!',
+        title: title,
+        message: message,
         sound: 'Sosumi'
         //icon: __dirname + '/fail.png'
-    })(err);
+    })(error);
 
-    this.emit('end');
+    console.log(error.toString());
+    gutil.log(gutil.colors.red(message));
 }
 
 /**
  * Success Notification
  */
 
-function notifySuccess(msg) {
+function notifySuccess(message) {
     if (hasErrors == false) {
         notifier.notify({
             title: 'Yaaay!',
-            message: msg
+            message: message
         });
+
+        gutil.log(gutil.colors.green(message));
     }
 
     hasErrors = false;
+}
+
+/**
+ * Error Handlers
+ */
+
+function notifySASSError(error) {
+    var title = 'Ooops...',
+        message = 'Error Compiling SASS!';
+
+    notifyError(title, message, error);
+
+    this.emit('end');
+}
+
+function notifyJSError(error) {
+    var title = 'Ooops...',
+        message = 'Error Compiling JS!';
+
+    notifyError(title, message, error);
+
+    this.emit('end');
+}
+
+function notifyPHPSpecError(error) {
+    var title = 'Ooops...',
+        message = 'PHPSpec Tests Failed!';
+
+    notifyError(title, message, error);
+
+    this.emit('end');
 }
