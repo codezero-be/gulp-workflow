@@ -42,7 +42,6 @@ config.css = {
 
     // SASS Settings
     sass: {
-        defaultTask: true, //=> Include this task in the default Gulp task?
         src: 'assets/sass/',
         dest: 'compiled/',
         clearCompiled: production //=> This will delete all *.css files from the dest folder when all tasks are done!
@@ -50,7 +49,6 @@ config.css = {
 
     // Concatenation Settings
     concat: {
-        defaultTask: true,
         files: [
             'bower_components/normalize.css/normalize.css',
             'compiled/main.css' //=> SASS output
@@ -70,7 +68,6 @@ config.js = {
 
     // Browserify Settings
     browserify: {
-        defaultTask: true,
         src: 'assets/js/',
         mainFilename: 'main.js',
         dest: 'compiled/',
@@ -79,7 +76,6 @@ config.js = {
 
     // Concatenation Settings
     concat: {
-        defaultTask: true,
         files: [
             'bower_components/jquery/dist/jquery.min.js',
             'compiled/main.js' //=> Browserify output
@@ -94,7 +90,6 @@ config.js = {
  */
 
 config.iconFont = {
-    defaultTask: true,
     name : 'icon-font',
     src: 'assets/icon-font/',
     dest: 'public/fonts/',
@@ -110,7 +105,6 @@ config.iconFont = {
  */
 
 config.images = {
-    defaultTask: true,
     src: 'assets/images/',
     dest: 'public/images/'
 };
@@ -131,11 +125,18 @@ config.phpspec = {
  */
 
 config.sync = {
-    defaultTask: true,
     root: 'public/',
     proxy: null, //=> Don't start a server but use an existing host (ex.: "app.dev")
     open: "external" //=> Open browser automatically (false|"local"|"external")
 };
+
+// ====================================================================================
+// ~~~ DEFAULT TASK ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ====================================================================================
+
+gulp.task('default', function (cb) {
+    runSequence('images', 'icon-font', 'css', 'js', ['browser-sync', 'watch-images', 'watch-icon-font', 'watch-css', 'watch-js'], cb);
+});
 
 // ====================================================================================
 // ~~~ BROWSER SYNC ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -563,14 +564,6 @@ gulp.task('phpspec-once', function (cb) {
 
 gulp.task('phpspec', ['phpspec-once'], function () {
     gulp.watch([config.phpspec.spec + '**/*.php', config.phpspec.php + '**/*.php'], ['phpspec-once']);
-});
-
-// ====================================================================================
-// ~~~ DEFAULT TASK ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// ====================================================================================
-
-gulp.task('default', function (cb) {
-    runSequence('images', 'icon-font', 'css', 'js', ['browser-sync', 'watch-images', 'watch-icon-font', 'watch-css', 'watch-js'], cb);
 });
 
 // ====================================================================================
