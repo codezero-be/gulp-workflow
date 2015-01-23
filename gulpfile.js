@@ -303,11 +303,9 @@ gulp.task('concat-css', function () {
  */
 
 gulp.task('cleanup-css', function (cb) {
-    var pattern = config.css.sass.clearCompiled
-        ? config.css.sass.dest + '*.css'
-        : 'nothing.toDelete';
-
-    del([pattern], cb);
+    config.css.sass.clearCompiled
+        ? del([config.css.sass.dest + '*.css'], cb)
+        : cb();
 });
 
 /**
@@ -418,11 +416,9 @@ gulp.task('concat-js', function () {
  */
 
 gulp.task('cleanup-js', function (cb) {
-    var pattern = config.js.browserify.clearCompiled
-        ? config.js.browserify.dest + '*.js'
-        : 'nothing.toDelete';
-
-    del([pattern], cb);
+    config.js.browserify.clearCompiled
+        ? del([config.js.browserify.dest + '*.js'], cb)
+        : cb();
 });
 
 /**
@@ -463,11 +459,11 @@ gulp.task('watch-js', function () {
  */
 
 // Get the key names of the objects in config.copy.files
-var defaultTasks = Object.keys(config.copy.files);
+var copyTasks = Object.keys(config.copy.files);
 
 if (config.copy.enabled) {
     // Loop through the objects in config.copy.files
-    defaultTasks.forEach(function (taskName) {
+    copyTasks.forEach(function (taskName) {
 
         // Fetch the src files array from the current object
         var files = config.copy.files[taskName];
@@ -476,35 +472,29 @@ if (config.copy.enabled) {
         return gulp.task(taskName, function () {
 
             // Load files
-            return gulp.src(files.src)
+            var stream = gulp.src(files.src)
 
                 // Only process the ones that changed
                 .pipe(newer(files.dest))
 
                 // Save files in destination folder
                 .pipe(gulp.dest(files.dest));
+
+            notifySuccess(taskName + ': Files Copied Successfully!');
+
+            return stream;
         });
     });
 }
-
-/**
- * Show Copy Files Success Notification
- */
-
-gulp.task('copy-notification', function () {
-    notifySuccess('Files Copied Successfully!');
-});
 
 /**
  * Run Generated Tasks
  */
 
 gulp.task('copy', function (cb) {
-    if (config.copy.enabled) {
-        runSequence(defaultTasks, 'copy-notification', cb);
-    } else {
-        cb();
-    }
+    config.copy.enabled
+        ? runSequence(copyTasks, cb)
+        : cb();
 });
 
 /**
@@ -512,14 +502,22 @@ gulp.task('copy', function (cb) {
  */
 
 gulp.task('watch-copy', function (cb) {
-    if (config.copy.enabled) {
-        defaultTasks.forEach(function (taskName) {
-            gulp.watch(config.copy.files[taskName].src, [taskName]);
-        });
-    } else {
-        cb();
-    }
+    config.copy.enabled
+        ? addCopyFileWatchers()
+        : cb();
 });
+
+function addCopyFileWatchers() {
+    // For some reason, if you run the copy and watch-copy tasks in a row (default gulp task),
+    // then "copyTasks" is at this point an array of empty objects instead of an array of strings. Weird....?
+    // If you run the tasks separately, the "copyTasks" var stays intact...
+    // For now let's just redefine the array...
+    copyTasks = Object.keys(config.copy.files);
+
+    copyTasks.forEach(function (taskName) {
+        gulp.watch(config.copy.files[taskName].src, [taskName]);
+    });
+}
 
 // ====================================================================================
 // ~~~ ICON FONT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -529,9 +527,9 @@ gulp.task('watch-copy', function (cb) {
  * Compile Icon Font
  */
 
-gulp.task('compile-icon-font', function () {
+gulp.task('icon-font', function () {
     // Fetch SVG files
-    return gulp.src([config.iconFont.src + '*.svg'], {base: '.'})
+    var stream = gulp.src([config.iconFont.src + '*.svg'], {base: '.'})
 
         // Create font CSS
         .pipe(iconfontcss({
@@ -546,23 +544,10 @@ gulp.task('compile-icon-font', function () {
 
         // Save font files
         .pipe(gulp.dest(config.iconFont.dest));
-});
 
-/**
- * Show Icon Font Success Notification
- */
-
-gulp.task('icon-font-notification', function () {
     notifySuccess('Icon Font Compiled Successfully!');
-});
 
-/**
- * Default Icon Font Task:
- * - Compile
- */
-
-gulp.task('icon-font', function (cb) {
-    runSequence('compile-icon-font', 'icon-font-notification', cb);
+    return stream;
 });
 
 /**
@@ -581,9 +566,9 @@ gulp.task('watch-icon-font', function () {
  * Optimize Images
  */
 
-gulp.task('optimize-images', function () {
+gulp.task('images', function () {
     // Fetch original images
-    return gulp.src(config.images.src + '**')
+    var stream = gulp.src(config.images.src + '**')
 
         // Only process the ones that changed
         .pipe(newer(config.images.dest))
@@ -596,22 +581,10 @@ gulp.task('optimize-images', function () {
 
         // Save optimized images
         .pipe(gulp.dest(config.images.dest));
-});
 
-/**
- * Show Image Optimization Success Notification
- */
-
-gulp.task('images-notification', function () {
     notifySuccess('All Images Optimized!');
-});
 
-/**
- * Default Image Optimization Task:
- */
-
-gulp.task('images', function (cb) {
-    runSequence('optimize-images', 'images-notification', cb);
+    return stream;
 });
 
 /**
@@ -632,27 +605,15 @@ gulp.task('watch-images', function () {
 
 gulp.task('run-phpspec', function () {
     // Fetch tests
-    return gulp.src(config.phpspec.spec + '**/*.php')
+    var stream = gulp.src(config.phpspec.spec + '**/*.php')
 
         // Run tests
         .pipe(phpspec('', {notify: true}))
         .on('error', notifyPHPSpecError);
-});
 
-/**
- * Show PHPSpec Success Notification
- */
-
-gulp.task('phpspec-notification', function () {
     notifySuccess('PHPSpec: All Tests Successful!');
-});
 
-/**
- * Default PHPSpec Task:
- */
-
-gulp.task('phpspec-once', function (cb) {
-    runSequence('run-phpspec', 'phpspec-notification', cb);
+    return stream;
 });
 
 /**
@@ -660,7 +621,7 @@ gulp.task('phpspec-once', function (cb) {
  */
 
 gulp.task('phpspec', ['phpspec-once'], function () {
-    gulp.watch([config.phpspec.spec + '**/*.php', config.phpspec.php + '**/*.php'], ['phpspec-once']);
+    gulp.watch([config.phpspec.spec + '**/*.php', config.phpspec.php + '**/*.php'], ['run-phpspec']);
 });
 
 // ====================================================================================
