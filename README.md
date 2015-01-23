@@ -145,3 +145,6 @@ This is the default project structure, but all folders can be changed in `gulpfi
 - `gulp cleanup-js` : Remove compiled JS file and only keep the one used for production
 
 > **TIP:** You can use `--dev` to prevent minification, save source maps and keep compiled files. This behavior is configurable in `gulpfile.js`.
+
+---
+[![Analytics](https://ga-beacon.appspot.com/UA-58876018-1/codezero-be/gulp-workflow)](https://github.com/igrigorik/ga-beacon)
