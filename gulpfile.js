@@ -86,6 +86,32 @@ config.js = {
 };
 
 /**
+ * Copy Files Configuration
+ */
+
+config.copy = {
+    enabled: true,
+    files: {
+        // To avoid task naming conflicts, always start
+        // your files object name with "Copy":
+        // CopyJS, CopyCSS, CopyWhatever
+        CopyJS: {
+            src: [
+                "bower_components/modernizr/modernizr.js",
+                "bower_components/jquery/dist/jquery.min.js"
+            ],
+            dest: "public/js/"
+        },
+        CopyCSS: {
+            src: [
+                "bower_components/normalize.css/normalize.css"
+            ],
+            dest: "public/css/"
+        }
+    }
+};
+
+/**
  * Icon Font Configuration
  */
 
@@ -135,7 +161,9 @@ config.sync = {
 // ====================================================================================
 
 gulp.task('default', function (cb) {
-    runSequence('images', 'icon-font', 'css', 'js', ['browser-sync', 'watch-images', 'watch-icon-font', 'watch-css', 'watch-js'], cb);
+    runSequence('copy', 'images', 'icon-font', 'css', 'js',
+        ['browser-sync', 'watch-copy', 'watch-images', 'watch-icon-font', 'watch-css', 'watch-js'],
+        cb);
 });
 
 // ====================================================================================
@@ -423,6 +451,74 @@ gulp.task('js', function (cb) {
 
 gulp.task('watch-js', function () {
     gulp.watch(config.js.browserify.src + '**/*.js', ['js']);
+});
+
+// ====================================================================================
+// ~~~ COPY FILES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ====================================================================================
+
+/**
+ * Generate Tasks:
+ * - Create a task for each object in config.copy.files
+ */
+
+// Get the key names of the objects in config.copy.files
+var defaultTasks = Object.keys(config.copy.files);
+
+if (config.copy.enabled) {
+    // Loop through the objects in config.copy.files
+    defaultTasks.forEach(function (taskName) {
+
+        // Fetch the src files array from the current object
+        var files = config.copy.files[taskName];
+
+        // Create task
+        return gulp.task(taskName, function () {
+
+            // Load files
+            return gulp.src(files.src)
+
+                // Only process the ones that changed
+                .pipe(newer(files.dest))
+
+                // Save files in destination folder
+                .pipe(gulp.dest(files.dest));
+        });
+    });
+}
+
+/**
+ * Show Copy Files Success Notification
+ */
+
+gulp.task('copy-notification', function () {
+    notifySuccess('Files Copied Successfully!');
+});
+
+/**
+ * Run Generated Tasks
+ */
+
+gulp.task('copy', function (cb) {
+    if (config.copy.enabled) {
+        runSequence(defaultTasks, 'copy-notification', cb);
+    } else {
+        cb();
+    }
+});
+
+/**
+ * Copy Files Watcher
+ */
+
+gulp.task('watch-copy', function (cb) {
+    if (config.copy.enabled) {
+        defaultTasks.forEach(function (taskName) {
+            gulp.watch(config.copy.files[taskName].src, [taskName]);
+        });
+    } else {
+        cb();
+    }
 });
 
 // ====================================================================================

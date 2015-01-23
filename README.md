@@ -2,6 +2,7 @@
 
 This is a sample project that uses [Gulp](http://gulpjs.com/) to:
 
+- Copy files to a specific folder
 - Optimize images
 - Create your own webfont from SVG icons
 - Compile SASS and JavaScript ([Browserify](http://browserify.org/))
@@ -87,6 +88,7 @@ This is the default project structure, but all folders can be changed in `gulpfi
 
 ## Run `gulp` to: ##
 
+- Copy files to a specific folder
 - Optimize images
 - Compile SVG icons into a webfont and create a SASS file
 - Compile SASS and JS ([Browserify](http://browserify.org/))
@@ -115,6 +117,7 @@ This is the default project structure, but all folders can be changed in `gulpfi
 
 ### Run tasks, but don't watch for changes: ###
 
+- `gulp copy` : Copy files to a specific folder
 - `gulp images` : Optimize images
 - `gulp icon-font` : Compile SVG icons into a webfont and create the SASS file
 - `gulp css` : Run all CSS tasks
@@ -122,6 +125,7 @@ This is the default project structure, but all folders can be changed in `gulpfi
 
 ### Watch for changes and then run all tasks: ###
 
+- `gulp watch-copy` : Watch specified files and copy them to a folder
 - `gulp watch-images` : Watch image assets and optimize them
 - `gulp watch-icon-font` : Watch SVG icons, compile them into a webfont
 - `gulp watch-css` : Watch SASS files for changes and run all CSS tasks
