@@ -1,7 +1,9 @@
-//var $ = require('jquery');
+var $ = require('jquery'); //=> Bower Package
 
 module.exports = function() {
 
-    console.log("Hello World...");
+    $('div').animate({
+        width: "200px"
+    }, 500);
 
 }

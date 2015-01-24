@@ -77,7 +77,7 @@ config.js = {
     // Concatenation Settings
     concat: {
         files: [
-            'bower_components/jquery/dist/jquery.min.js',
+            'bower_components/modernizr/modernizr.js',
             'compiled/main.js' //=> Browserify output
         ],
         outputFilename: 'scripts.js',

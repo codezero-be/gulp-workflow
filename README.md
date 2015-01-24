@@ -26,31 +26,47 @@ If you want to run [PHPSpec](http://www.phpspec.net/), then you will also need t
 - [PHP](http://php.net/) (Windows users: unzip and update your PATH)
 - [Composer](https://getcomposer.org/)
 
-## Install Gulp, BrowserSync & Dependencies ##
+## Install Gulp & Dependencies ##
+
+### Gulp ###
 
 First, install [Gulp](http://gulpjs.com/) globally on your machine: (only once)
 
     npm install -g gulp
 
+### Bower ###
+
+Install [Bower](http://bower.io/) globally on your machine: (only once)
+
+    npm install -g bower
+
+With [Bower](http://bower.io/) you can easily manage third party JS and CSS packages. Thanks to the [debowerify](https://github.com/eugeneware/debowerify) package, you can require Bower dependencies with Browserify:
+
+    var $ = require('jquery'); //=> Bower Package
+    
+    module.exports = function() {
+        $('div').animate({
+            width: "200px"
+        }, 500);
+    }
+
+> **IMPORTANT:** Note that this only works if the package has set a main script in their `bower.json` file: `main: "dist/jquery.js"`! 
+
+### BrowserSync (optional)
+
 If you want to use [BrowserSync](http://www.browsersync.io/docs/gulp/), install it globally aswell:
 
     npm install -g browser-sync
+
+With [BrowserSync](http://www.browsersync.io/docs/gulp/) all browsers and devices that are connected to your BrowserSync URL will be automatically updated on HTML, CSS and JS changes. Scrolling will also be synced on all connected devices!
+
+### Project Dependencies ###
 
 Next, install Gulp and our dependencies in this project:
 
     npm install
 
-## Install Bower & Packages (optional) ##
-
-First, install [Bower](http://bower.io/) globally on your machine:
-
-    npm install -g bower
-
-Install the third party packages that are used in this sample project (Modernizr, normalize.css, jQuery):
-
-    bower install
-
-> If you don't want to use Bower, make sure you edit the CSS/JS concatenation files array in `gulpfile.js`.
+> **TIP:** When `npm install` has finished it will automatically trigger `bower install`.
 
 ## Install PHPSpec (optional) ##
 
