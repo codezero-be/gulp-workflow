@@ -20,5 +20,8 @@
     "browser-sync": "^1.9.0",
     "node-notifier": "^4.0.3",
     "gulp-notify": "^2.1.0"
+  },
+  "scripts": {
+    "postinstall": "bower install"
   }
 }
