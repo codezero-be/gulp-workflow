@@ -114,8 +114,6 @@ This is the default project structure, but all folders can be changed in `gulpfi
 - Uglify JS
 - Minify CSS files
 - Remove compiled CSS and JS files and only keep the one used for production
-- Start watching SVG files, SASS and JS for changes
-- Sync changes to CSS/JS/HTML/PHP between browsers/devices ([BrowserSync](http://www.browsersync.io/docs/gulp/))
 
 ## Run `gulp --dev` to do the above, but: ##
 
@@ -123,6 +121,8 @@ This is the default project structure, but all folders can be changed in `gulpfi
 - **DO NOT** combine CSS media queries (does not work well with source maps)
 - **DO NOT** Uglify JS
 - **DO NOT** remove compiled CSS and JS files
+- Start watching SVG, SASS and JS files for changes
+- Start local server and sync changes to CSS/JS/HTML/PHP between browsers/devices ([BrowserSync](http://www.browsersync.io/docs/gulp/))
 
 ## Run `gulp phpspec` to: ##
 
@@ -130,7 +130,7 @@ This is the default project structure, but all folders can be changed in `gulpfi
 
 ## Additional (more specific) tasks: ##
 
-- `gulp browser-sync` : Sync changes to CSS/JS/HTML/PHP between browsers/devices ([BrowserSync](http://www.browsersync.io/docs/gulp/))
+- `gulp serve` : Start local server and sync changes to CSS/JS/HTML/PHP between browsers/devices ([BrowserSync](http://www.browsersync.io/docs/gulp/))
 
 ### Run tasks, but don't watch for changes: ###
 

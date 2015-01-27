@@ -24,8 +24,8 @@ var gulp        = require('gulp'),
 // ~~~ CONFIGURATION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ====================================================================================
 
-var dev = !! gutil.env.dev;
-var production = ! dev;
+var dev = !! gutil.env.dev; // true if you run "gulp --dev"
+var production = ! dev; // true if you run "gulp"
 var config = {};
 
 /**
@@ -65,11 +65,11 @@ config.css = {
     minify: {
         enabled: true,
         files: [
-            'public/css/*.css',
-            '!public/css/*.min.css' // Not already minified files
+            'public/css/*.css', //=> Concat output
+            '!public/css/*.min.css' //=> Not already minified files
         ],
         suffix: '.min',
-        dest: 'public/css/min/'
+        dest: 'public/css/'
     }
 };
 
@@ -175,11 +175,17 @@ config.sync = {
 // ~~~ DEFAULT TASK ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ====================================================================================
 
-gulp.task('default', function (cb) {
-    runSequence('copy', 'images', 'icon-font', 'css', 'js',
-        ['browser-sync', 'watch-copy', 'watch-images', 'watch-icon-font', 'watch-css', 'watch-js'],
-        cb);
-});
+if (dev) {
+    gulp.task('default', function (cb) {
+        runSequence('copy', 'images', 'icon-font', 'css', 'js', 'watch', cb);
+    });
+} else {
+    gulp.task('default', function (cb) {
+        runSequence('copy', 'images', 'icon-font', 'css', 'js', cb);
+    });
+}
+
+gulp.task('watch', ['serve', 'watch-copy', 'watch-images', 'watch-icon-font', 'watch-css', 'watch-js']);
 
 // ====================================================================================
 // ~~~ BROWSER SYNC ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -211,7 +217,7 @@ if (config.sync.proxy) {
     }
 }
 
-gulp.task('browser-sync', function () {
+gulp.task('serve', function () {
     gutil.log(gutil.colors.green('Starting BrowserSync...'));
     browserSync(bsOptions);
 });
