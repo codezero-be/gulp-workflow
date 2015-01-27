@@ -111,7 +111,8 @@ This is the default project structure, but all folders can be changed in `gulpfi
 - Concatenate with vendor CSS and JS files
 - Combine CSS media queries
 - Add browser prefixes to CSS
-- Minify CSS / Uglify JS
+- Uglify JS
+- Minify CSS files
 - Remove compiled CSS and JS files and only keep the one used for production
 - Start watching SVG files, SASS and JS for changes
 - Sync changes to CSS/JS/HTML/PHP between browsers/devices ([BrowserSync](http://www.browsersync.io/docs/gulp/))
@@ -120,7 +121,7 @@ This is the default project structure, but all folders can be changed in `gulpfi
 
 - Use source maps for debugging
 - **DO NOT** combine CSS media queries (does not work well with source maps)
-- **DO NOT** Minify CSS / Uglify JS
+- **DO NOT** Uglify JS
 - **DO NOT** remove compiled CSS and JS files
 
 ## Run `gulp phpspec` to: ##
@@ -158,6 +159,10 @@ This is the default project structure, but all folders can be changed in `gulpfi
 
 - `gulp concat-css` : Concatenate CSS files, combine media queries, add prefixes, minify
 - `gulp concat-js` : Concatenate JS files, uglify
+
+### Minify files only: ###
+
+- `gulp minify-css` : Minify an array of CSS files and save them with a `.min` suffix
 
 ### Clean up compiled files: ###
 
