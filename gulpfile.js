@@ -3,6 +3,7 @@ var gulp        = require('gulp'),
     runSequence = require('gulp-sequence'),     //=> Run tasks synchronously
     del         = require('del'),               //=> Remove files with patterns
     concat      = require('gulp-concat'),
+    rename      = require("gulp-rename"),
     sourcemaps  = require('gulp-sourcemaps'),
     browserify  = require('gulp-browserify'),   //=> Compile JavaScript files with their dependencies
     uglify      = require('gulp-uglify'),
@@ -34,14 +35,16 @@ var config = {};
 config.css = {
     sourceMaps: dev,
     combineMediaQueries: production,
+
+    // Auto-Prefix Settings
     autoPrefix: {
         enabled: true,
         browsers: ['last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4']
     },
-    minify: production,
 
     // SASS Settings
     sass: {
+        minify: false,
         src: 'assets/sass/',
         dest: 'compiled/',
         clearCompiled: production //=> This will delete all *.css files from the dest folder when all tasks are done!
@@ -49,12 +52,24 @@ config.css = {
 
     // Concatenation Settings
     concat: {
+        minify: false,
         files: [
             'bower_components/normalize.css/normalize.css',
             'compiled/main.css' //=> SASS output
         ],
         outputFilename: 'styles.css',
         dest: 'public/css/'
+    },
+
+    // Minify Files Settings
+    minify: {
+        enabled: true,
+        files: [
+            'public/css/*.css',
+            '!public/css/*.min.css' // Not already minified files
+        ],
+        suffix: '.min',
+        dest: 'public/css/min/'
     }
 };
 
@@ -211,7 +226,7 @@ gulp.task('browser-sync', function () {
  * - Compile SASS without source maps (production)
  * - Combine media queries (production) (source maps won't work well with this)
  * - Add browser prefixes
- * - Minify CSS (production)
+ * - Minify CSS
  */
 
 gulp.task('compile-sass', function () {
@@ -237,8 +252,8 @@ gulp.task('compile-sass', function () {
         // Add browser prefixes
         .pipe(config.css.autoPrefix.enabled ? prefix(config.css.autoPrefix.browsers) : gutil.noop())
 
-        // Minify CSS (production)
-        .pipe(config.css.minify ? cssmin({keepSpecialComments: 0}) : gutil.noop())
+        // Minify CSS
+        .pipe(config.css.sass.minify ? cssmin({keepSpecialComments: 0}) : gutil.noop())
 
         // Save source map
         .pipe(config.css.sourceMaps ? sourcemaps.write() : gutil.noop())
@@ -269,7 +284,7 @@ gulp.task('watch-sass', function () {
  * - Concatenate CSS files without source maps (production)
  * - Combine media queries (production) (source maps won't work well with this)
  * - Add browser prefixes
- * - Minify CSS (production)
+ * - Minify CSS
  */
 
 gulp.task('concat-css', function () {
@@ -288,14 +303,43 @@ gulp.task('concat-css', function () {
         // Add browser prefixes
         .pipe(config.css.autoPrefix.enabled ? prefix(config.css.autoPrefix.browsers) : gutil.noop())
 
-        // Minify CSS (production)
-        .pipe(config.css.minify ? cssmin({keepSpecialComments: 0}) : gutil.noop())
+        // Minify CSS
+        .pipe(config.css.concat.minify ? cssmin({keepSpecialComments: 0}) : gutil.noop())
 
         // Save source map
         .pipe(config.css.sourceMaps ? sourcemaps.write() : gutil.noop())
 
         // Save output to destination folder
         .pipe(gulp.dest(config.css.concat.dest));
+});
+
+/**
+ * Minify CSS Files
+ */
+
+gulp.task('minify-css', function (cb) {
+    // Only run if minify is enabled
+    if (config.css.minify.enabled) {
+        // Fetch CSS files
+        return gulp.src(config.css.minify.files)
+
+            // Start source map
+            .pipe(config.css.sourceMaps ? sourcemaps.init({loadMaps: true}) : gutil.noop())
+
+            // Minify CSS
+            .pipe(cssmin({keepSpecialComments: 0}))
+
+            // Add file suffix
+            .pipe(rename({suffix: config.css.minify.suffix}))
+
+            // Save source map
+            .pipe(config.css.sourceMaps ? sourcemaps.write() : gutil.noop())
+
+            // Save files to destination folder
+            .pipe(gulp.dest(config.css.minify.dest));
+    }
+
+    cb();
 });
 
 /**
@@ -317,7 +361,7 @@ gulp.task('cleanup-css', function (cb) {
  */
 
 gulp.task('css', function (cb) {
-    runSequence('compile-sass', 'concat-css', 'cleanup-css', 'css-notification', cb);
+    runSequence('compile-sass', 'concat-css', 'minify-css', 'cleanup-css', 'css-notification', cb);
 });
 
 /**
