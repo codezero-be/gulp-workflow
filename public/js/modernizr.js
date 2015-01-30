@@ -28,6 +28,7 @@ window.Modernizr = (function( window, document, undefined ) {
 
     Modernizr = {},
 
+
     /*>>cssclasses*/
     // option for enabling the HTML classes to be added
     enableClasses = true,

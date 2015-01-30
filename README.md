@@ -112,7 +112,7 @@ This is the default project structure, but all folders can be changed in `gulpfi
 - Combine CSS media queries
 - Add browser prefixes to CSS
 - Uglify JS
-- Minify CSS files
+- Minify CSS
 - Remove compiled CSS and JS files and only keep the one used for production
 
 ## Run `gulp --dev` to do the above, but: ##
@@ -160,9 +160,10 @@ This is the default project structure, but all folders can be changed in `gulpfi
 - `gulp concat-css` : Concatenate CSS files, combine media queries, add prefixes, minify
 - `gulp concat-js` : Concatenate JS files, uglify
 
-### Minify files only: ###
+### Minify/Uglify files only: ###
 
 - `gulp minify-css` : Minify an array of CSS files and save them with a `.min` suffix
+- `gulp uglify-js` : Uglify an array of JS files and save them with a `.min` suffix
 
 ### Clean up compiled files: ###
 

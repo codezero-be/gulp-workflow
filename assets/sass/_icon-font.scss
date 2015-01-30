@@ -1,41 +1,41 @@
 @font-face {
-	font-family: "icon-font";
-	src: url('../fonts/icon-font.eot');
-	src: url('../fonts/icon-font.eot?#iefix') format('eot'),
-		url('../fonts/icon-font.woff') format('woff'),
-		url('../fonts/icon-font.ttf') format('truetype'),
-		url('../fonts/icon-font.svg#icon-font') format('svg');
+  font-family: "icon-font";
+  src: url('../fonts/icon-font.eot');
+  src: url('../fonts/icon-font.eot?#iefix') format('eot'),
+  url('../fonts/icon-font.woff') format('woff'),
+  url('../fonts/icon-font.ttf') format('truetype'),
+  url('../fonts/icon-font.svg#icon-font') format('svg');
 }
 
 %icon {
-	font-family: "icon-font";
-		-webkit-font-smoothing: antialiased;
-		-moz-osx-font-smoothing: grayscale;
-	font-style: normal;
-	font-variant: normal;
-	font-weight: normal;
-	// speak: none; // only necessary if not using the private unicode range (firstGlyph option)
-	text-decoration: none;
-	text-transform: none;
+  font-family: "icon-font";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  // speak: none; // only necessary if not using the private unicode range (firstGlyph option)
+  text-decoration: none;
+  text-transform: none;
+  vertical-align: top;
 }
 
 @function icon-char($filename) {
-	$char: "";
+  $char: "";
 
-	@if $filename == world {
-		$char: "\E001";
-	}
-
-	@return $char;
+@if $filename == world {
+$char: "\E001";
+}
+@return $char;
 }
 
 @mixin icon($filename, $insert: before) {
-	&:#{$insert} {
-		@extend %icon;
-		content: icon-char($filename);
-	}
+  &:#{$insert} {
+	@extend %icon;
+	content: icon-char($filename);
+  }
 }
 
 .icon-world {
-	@include icon(world);
+  @include icon(world);
 }
