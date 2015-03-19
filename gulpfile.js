@@ -268,7 +268,7 @@ gulp.task('compile-sass', function () {
         .pipe(config.css.combineMediaQueries ? combineMq() : gutil.noop())
 
         // Add browser prefixes
-        .pipe(config.css.autoPrefix.enabled ? prefix(config.css.autoPrefix.browsers) : gutil.noop())
+        .pipe(config.css.autoPrefix.enabled ? prefix({browsers: config.css.autoPrefix.browsers}) : gutil.noop())
 
         // Minify CSS
         .pipe(config.css.sass.minify ? cssmin({keepSpecialComments: 0}) : gutil.noop())
@@ -319,7 +319,7 @@ gulp.task('concat-css', function () {
         .pipe(config.css.combineMediaQueries ? combineMq() : gutil.noop())
 
         // Add browser prefixes
-        .pipe(config.css.autoPrefix.enabled ? prefix(config.css.autoPrefix.browsers) : gutil.noop())
+        .pipe(config.css.autoPrefix.enabled ? prefix({browsers: config.css.autoPrefix.browsers}) : gutil.noop())
 
         // Minify CSS
         .pipe(config.css.concat.minify ? cssmin({keepSpecialComments: 0}) : gutil.noop())
