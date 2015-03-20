@@ -491,26 +491,30 @@ gulp.task('concat-js', function () {
  * Uglify JS:
  */
 
-gulp.task('uglify-js', function () {
-    // Fetch CSS files
-    return gulp.src(config.js.uglify.files)
+gulp.task('uglify-js', function (cb) {
+    // Only run if uglify is enabled
+    if (config.js.uglify.enabled) {
+        // Fetch CSS files
+        return gulp.src(config.js.uglify.files)
 
-        // Start source map
-        .pipe(config.js.sourceMaps ? sourcemaps.init({loadMaps: true}) : gutil.noop())
+            // Start source map
+            .pipe(config.js.sourceMaps ? sourcemaps.init({loadMaps: true}) : gutil.noop())
 
-        // Uglify JS
-        .pipe(uglify())
+            // Uglify JS
+            .pipe(uglify())
 
-        // Add file suffix
-        .pipe(rename({suffix: config.js.uglify.suffix}))
+            // Add file suffix
+            .pipe(rename({suffix: config.js.uglify.suffix}))
 
-        // Save source map
-        .pipe(config.js.sourceMaps ? sourcemaps.write() : gutil.noop())
+            // Save source map
+            .pipe(config.js.sourceMaps ? sourcemaps.write() : gutil.noop())
 
-        // Save output to destination folder
-        .pipe(gulp.dest(config.js.uglify.dest));
+            // Save output to destination folder
+            .pipe(gulp.dest(config.js.uglify.dest));
+    }
+
+    cb();
 });
-
 
 /**
  * Clean Up JS Output (production)
