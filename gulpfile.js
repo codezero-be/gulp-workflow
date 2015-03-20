@@ -16,6 +16,7 @@ var gulp        = require('gulp'),
     phpspec     = require('gulp-phpspec'),
     imagemin    = require('gulp-imagemin'),
     newer       = require('gulp-newer'),
+    rev         = require('gulp-rev'),
     browserSync = require('browser-sync'),
     notifier    = require('node-notifier'),     //=> For notifications not via .pipe()
     notify      = require('gulp-notify');       //=> For notifications via .pipe()
@@ -139,6 +140,19 @@ config.copy = {
 };
 
 /**
+ * Version Files Configuration
+ */
+config.version = {
+    enabled: true,
+    srcBase: 'public/',
+    src: [
+        'public/css/styles.min.css',
+        'public/js/scripts.min.js'
+    ],
+    dest: 'public/build/' // Directories in the src path, relative to srcBase will be created in the destination folder
+};
+
+/**
  * Icon Font Configuration
  */
 
@@ -189,15 +203,15 @@ config.sync = {
 
 if (dev) {
     gulp.task('default', function (cb) {
-        runSequence('copy', 'images', 'icon-font', 'css', 'js', 'watch', cb);
+        runSequence('copy', 'images', 'icon-font', 'css', 'js', 'version', 'watch', cb);
     });
 } else {
     gulp.task('default', function (cb) {
-        runSequence('copy', 'images', 'icon-font', 'css', 'js', cb);
+        runSequence('copy', 'images', 'icon-font', 'css', 'js', 'version', cb);
     });
 }
 
-gulp.task('watch', ['serve', 'watch-copy', 'watch-images', 'watch-icon-font', 'watch-css', 'watch-js']);
+gulp.task('watch', ['serve', 'watch-copy', 'watch-images', 'watch-icon-font', 'watch-css', 'watch-js', 'watch-version']);
 
 // ====================================================================================
 // ~~~ BROWSER SYNC ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -605,6 +619,61 @@ function addCopyFileWatchers() {
         gulp.watch(config.copy.files[taskName].src, [taskName]);
     });
 }
+
+// ====================================================================================
+// ~~~ VERSIONING ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ====================================================================================
+
+/**
+ * Remove Old Versions
+ */
+
+gulp.task('version-cleanup', function(cb) {
+    del([config.version.dest + '**/{*.css,*.js}'], cb);
+});
+
+/**
+ * Version Files
+ */
+
+gulp.task('version-files', ['version-cleanup'], function (cb) {
+    if (config.version.enabled)
+    {
+        return gulp.src(config.version.src, {base: config.version.srcBase})
+            .pipe(gulp.dest(config.version.dest))
+            .pipe(rev())
+            .pipe(gulp.dest(config.version.dest))
+            .pipe(rev.manifest())
+            .pipe(gulp.dest(config.version.dest));
+    }
+    cb();
+});
+
+/**
+ * Show Version Success Notification
+ */
+
+gulp.task('v-notification', function () {
+    notifySuccess('Files Versioned Successfully!');
+});
+
+/**
+ * Default Version Task
+ */
+
+gulp.task('version', function (cb) {
+    runSequence('version-files', 'v-notification', cb);
+});
+
+/**
+ * Versioning Watcher
+ */
+
+gulp.task('watch-version', function (cb) {
+    config.version.enabled
+        ? gulp.watch(config.version.src, ['version'])
+        : cb();
+});
 
 // ====================================================================================
 // ~~~ ICON FONT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
