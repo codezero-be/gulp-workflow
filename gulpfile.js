@@ -47,7 +47,7 @@ config.css = {
     sass: {
         minify: false,
         src: 'assets/sass/',
-        dest: 'compiled/',
+        dest: 'compiled/css/',
         clearCompiled: production //=> This will delete all *.css files from the dest folder when all tasks are done!
     },
 
@@ -56,21 +56,21 @@ config.css = {
         minify: false,
         files: [
             'bower_components/normalize.css/normalize.css',
-            'compiled/main.css' //=> SASS output
+            'compiled/css/main.css' //=> SASS output
         ],
-        outputFilename: 'styles.css',
-        dest: 'public/css/'
+        outputFilename: production ? 'styles.css' : 'styles.min.css', // styles.min.css will be used for versioning, so output that file if we don't minify (next step)
+        dest: 'compiled/dist/css/'
     },
 
     // Minify Files Settings
     minify: {
-        enabled: true,
+        enabled: production,
         files: [
-            'public/css/*.css', //=> Concat output
-            '!public/css/*.min.css' //=> Not already minified files
+            'compiled/dist/css/*.css', //=> Concat output
+            '!compiled/dist/css/*.min.css' //=> Not already minified files
         ],
         suffix: '.min',
-        dest: 'public/css/'
+        dest: 'compiled/dist/css/'
     }
 };
 
@@ -86,7 +86,7 @@ config.js = {
         uglify: false,
         src: 'assets/js/',
         mainFilename: 'main.js',
-        dest: 'compiled/',
+        dest: 'compiled/js/',
         clearCompiled: production //=> This will delete all *.js files from the dest folder when all tasks are done!
     },
 
@@ -95,21 +95,21 @@ config.js = {
         uglify: false,
         files: [
             'bower_components/modernizr/modernizr.js',
-            'compiled/main.js' //=> Browserify output
+            'compiled/js/main.js' //=> Browserify output
         ],
-        outputFilename: 'scripts.js',
-        dest: 'public/js/'
+        outputFilename: production ? 'scripts.js' : 'scripts.min.js', // scripts.min.js will be used for versioning, so output that file if we don't uglify (next step)
+        dest: 'compiled/dist/js/'
     },
 
-    // Minify Files Settings
+    // Uglify Files Settings
     uglify: {
-        enabled: true,
+        enabled: production,
         files: [
-            'public/js/*.js', //=> Concat output
-            '!public/js/*.min.js' //=> Not already minified files
+            'compiled/dist/js/*.js', //=> Concat output
+            '!compiled/dist/js/*.min.js' //=> Not already minified files
         ],
         suffix: '.min',
-        dest: 'public/js/'
+        dest: 'compiled/dist/js/'
     }
 };
 
@@ -144,10 +144,10 @@ config.copy = {
  */
 config.version = {
     enabled: true,
-    srcBase: 'public/',
+    srcBase: 'compiled/dist/',
     src: [
-        'public/css/styles.min.css',
-        'public/js/scripts.min.js'
+        'compiled/dist/css/styles.min.css',
+        'compiled/dist/js/scripts.min.js'
     ],
     dest: 'public/build/' // Directories in the src path, relative to srcBase will be created in the destination folder
 };

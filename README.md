@@ -1,4 +1,4 @@
-# Gulp Workflow #
+# Gulp Workflow
 
 This is a sample project that uses [Gulp](http://gulpjs.com/) to:
 
@@ -9,12 +9,13 @@ This is a sample project that uses [Gulp](http://gulpjs.com/) to:
 - Concatenate files
 - Add CSS browser prefixes
 - Minify CSS / Uglify JS
+- Version files (`styles.min.css` >> `styles.min-69fb84d1.css`)
 - Sync changes to CSS/JS/HTML/PHP between browsers/devices ([BrowserSync](http://www.browsersync.io/docs/gulp/))
 - [Read more...](#using-this-gulpfile)
 
 You can also keep watch on your [PHPSpec](http://www.phpspec.net/) tests. These have their own [separate tasks](#using-this-gulpfile).
 
-## System Requirements ##
+## System Requirements
 
 To use [Gulp](http://gulpjs.com/), you will need to have a few programs installed on your machine:
 
@@ -26,15 +27,15 @@ If you want to run [PHPSpec](http://www.phpspec.net/), then you will also need t
 - [PHP](http://php.net/) (Windows users: unzip and update your PATH)
 - [Composer](https://getcomposer.org/)
 
-## Install Gulp & Dependencies ##
+## Install Gulp & Dependencies
 
-### Gulp ###
+### Gulp
 
 First, install [Gulp](http://gulpjs.com/) globally on your machine: (only once)
 
     npm install -g gulp
 
-### Bower ###
+### Bower
 
 Install [Bower](http://bower.io/) globally on your machine: (only once)
 
@@ -89,10 +90,11 @@ This is the default project structure, but all folders can be changed in `gulpfi
 - `assets/sass/` : SASS source files  
 - `assets/js/` : JavaScript source files
 - `compiled/` : Compiled SASS and JavaScript files (not yet concatenated)
+- `compiled/dist/` : Concatenated files
 - `public/images` : Optimized images
 - `public/fonts/` : Webfont generated from SVG icons
-- `public/css/` : CSS production file (compiled, concatenated, ...)
-- `public/js/` : JavaScript production file (compiled, concatenated, ...)
+- `public/css/` : CSS production file (compiled, concatenated, versioned, ...)
+- `public/js/` : JavaScript production file (compiled, concatenated, versioned, ...)
 - `src/` : PHP Classes (PSR-4 autloaded with the `App` namespace)
 - `spec/` : PHPSpec tests
 
@@ -113,13 +115,14 @@ This is the default project structure, but all folders can be changed in `gulpfi
 - Add browser prefixes to CSS
 - Uglify JS
 - Minify CSS
+- Version CSS and JS files
 - Remove compiled CSS and JS files and only keep the one used for production
 
 ## Run `gulp --dev` to do the above, but: ##
 
 - Use source maps for debugging
 - **DO NOT** combine CSS media queries (does not work well with source maps)
-- **DO NOT** Uglify JS
+- **DO NOT** Uglify JS / Minify CSS
 - **DO NOT** remove compiled CSS and JS files
 - Start watching SVG, SASS and JS files for changes
 - Start local server and sync changes to CSS/JS/HTML/PHP between browsers/devices ([BrowserSync](http://www.browsersync.io/docs/gulp/))
@@ -139,6 +142,7 @@ This is the default project structure, but all folders can be changed in `gulpfi
 - `gulp icon-font` : Compile SVG icons into a webfont and create the SASS file
 - `gulp css` : Run all CSS tasks
 - `gulp js` : Run all JS tasks
+- `gulp version` : Version files (after running `gulp css` and `gulp js`)
 
 ### Watch for changes and then run all tasks: ###
 
